@@ -205,9 +205,6 @@ class TensorDataset(torch.utils.data.Dataset):
         ret_poses = [target_cam_c2w, ] + [abs2rel @ abs_c2w for abs_c2w in abs_c2ws[1:]]
         ret_poses = np.array(ret_poses, dtype=np.float32)
         return ret_poses
-        
-    def __len__(self):
-        return len(self.path)
 
     def __getitem__(self, index):
         # Return: 
@@ -268,7 +265,7 @@ class TensorDataset(torch.utils.data.Dataset):
     
 
     def __len__(self):
-        return self.steps_per_epoch
+        return min(len(self.path), self.steps_per_epoch)
 
 
 
