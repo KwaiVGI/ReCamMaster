@@ -48,7 +48,9 @@ class TextVideoDataset(torch.utils.data.Dataset):
         )
         return image
 
-
+    def __len__(self):
+        return len(self.path)
+        
     def load_frames_using_imageio(self, file_path, max_num_frames, start_frame_id, interval, num_frames, frame_process):
         reader = imageio.get_reader(file_path)
         if reader.count_frames() < max_num_frames or reader.count_frames() - 1 < start_frame_id + (num_frames - 1) * interval:
@@ -115,8 +117,9 @@ class TextVideoDataset(torch.utils.data.Dataset):
                 else:
                     data = {"text": text, "video": video, "path": path}
                 break
-            except:
-                data_id += 1
+            except Exception as e:
+                print(f"ERROR WHEN LOADING: {e}")
+                self.__getitem__(data_id+1 if data_id+1 < len(self.path) else 0)
         return data
     
 
@@ -203,7 +206,6 @@ class TensorDataset(torch.utils.data.Dataset):
         ret_poses = np.array(ret_poses, dtype=np.float32)
         return ret_poses
 
-
     def __getitem__(self, index):
         # Return: 
         # data['latents']: torch.Size([16, 21*2, 60, 104])
@@ -263,7 +265,7 @@ class TensorDataset(torch.utils.data.Dataset):
     
 
     def __len__(self):
-        return self.steps_per_epoch
+        return min(len(self.path), self.steps_per_epoch)
 
 
 
